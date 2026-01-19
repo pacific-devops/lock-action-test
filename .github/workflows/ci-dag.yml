@@ -1,0 +1,36 @@
+name: ci-dags
+
+on:
+  workflow_call:
+    inputs:
+      deployment-id:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  lock-test:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Acquire branch lock
+        uses: suzuki-shunsuke/lock-action@8f08ca10332ee4ed22fd6f90508c179176da9d6d
+        with:
+          github_token: ${{ secrets.PAT_TOKEN }}
+          repo_name: rops-dags-storage
+          mode: lock
+          key: ${{ inputs.deployment-id }}
+          message: |
+            owner_repo   : ${{ github.repository }}
+            owner_branch : ${{ github.ref_name }}
+            owner_actor  : ${{ github.actor }}
+            owner_run    : ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            owner_commit : ${{ github.sha }}
+          # post_unlock: "true"
+          # max_wait_seconds: "600"
+          # wait_interval_seconds: "10"
+
+      # - name: Simulate long-running job
+      #   run: sleep 300
