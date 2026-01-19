@@ -18,7 +18,7 @@ jobs:
       - name: Acquire branch lock
         uses: suzuki-shunsuke/lock-action@8f08ca10332ee4ed22fd6f90508c179176da9d6d
         with:
-          github_token: ${{ secrets.PAT_TOKEN }}
+          github_token: ${{ secrets.GH_PAT }}
           repo_name: rops-dags-storage
           mode: lock
           key: ${{ inputs.deployment-id }}
