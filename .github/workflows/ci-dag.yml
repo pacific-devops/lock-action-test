@@ -51,20 +51,26 @@ jobs:
           echo "run_id=${{ github.run_id }}" >> dags/test/.last_deploy
           echo "deployed_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> dags/test/.last_deploy
 
-      # 4) Commit & push to pacific-devops/lock-action-test
       - name: Commit & Push changes
         id: commit_push
         working-directory: ${{ github.workspace }}/storage
+        env:
+          DEPLOYMENT_ID: ${{ inputs.deployment-id }}   # or inputs.deployment-id
         run: |
           git config user.name "ci-bot"
           git config user.email "ci-bot@users.noreply.github.com"
-
+      
+          # Ensure we are on the deployment branch (create if missing)
+          git checkout -B "$DEPLOYMENT_ID"
+      
           git add .
           if git diff-index --quiet HEAD; then
+            echo "pushed=false" >> $GITHUB_OUTPUT
             echo "No changes to push."
           else
-            git commit -m "chore: test DAG sync (${GITHUB_SHA})"
-            git push origin HEAD:main
+            git commit -m "chore: push DAGs from ${{ github.repository }}@${GITHUB_SHA}"
+            git push -u origin "$DEPLOYMENT_ID"
+            echo "pushed=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Debug list lock branches
