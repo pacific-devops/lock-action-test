@@ -24,8 +24,8 @@ jobs:
           key: ${{ inputs.deployment-id }}
           message: "Deployment locked by repo=${{ github.repository }},branch=${{ github.ref_name }},run_url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           # post_unlock: true
-          max_wait_seconds: 600
-          wait_interval_seconds: 10
+          # max_wait_seconds: 600
+          # wait_interval_seconds: 10
           remove_key_when_unlock: false
           key_prefix: lock__
           ignore_already_locked_error: false
