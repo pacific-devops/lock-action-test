@@ -14,7 +14,16 @@ jobs:
   lock-test:
     runs-on: ubuntu-latest
     steps:
-
+      - name: Checkout storage repo
+        uses: actions/checkout@v4
+        with:
+          path: main
+      - name: Checkout storage repo
+        uses: actions/checkout@v4
+        with:
+          repository: pacific-devops/lock-action-test
+          token: ${{ secrets.GH_PAT }}
+          path: storage
       - name: Acquire branch lock
         uses: suzuki-shunsuke/lock-action@8f08ca10332ee4ed22fd6f90508c179176da9d6d
         with:
@@ -30,20 +39,36 @@ jobs:
           key_prefix: lock__
           ignore_already_locked_error: false
           fail_if_locked: false
-      - name: Debug
-        run: |
-           echo "madter-133"
 
-      # - name: Debug-1
-      #   run: |
-      #      echo "madter-133"
-          
-      # - name: Debug-2
-      #   run: |
-      #      echo "madter-133"
+      # 3) Simulate DAG work (write a file into the checked-out repo)
+      - name: Simulate DAG sync (create file)
+        working-directory: ${{ github.workspace }}/storage
+        run: |
+          mkdir -p dags/test
+          echo "repo=${{ github.repository }}" > dags/test/.last_deploy
+          echo "branch=${{ github.ref_name }}" >> dags/test/.last_deploy
+          echo "sha=${{ github.sha }}" >> dags/test/.last_deploy
+          echo "run_id=${{ github.run_id }}" >> dags/test/.last_deploy
+          echo "deployed_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> dags/test/.last_deploy
+
+      # 4) Commit & push to pacific-devops/lock-action-test
+      - name: Commit & Push changes
+        id: commit_push
+        working-directory: ${{ github.workspace }}/storage
+        run: |
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+
+          git add .
+          if git diff-index --quiet HEAD; then
+            echo "No changes to push."
+          else
+            git commit -m "chore: test DAG sync (${GITHUB_SHA})"
+            git push origin HEAD:main
+          fi
 
       - name: Debug list lock branches
-        if: always()
+        if: steps.commit_push.conclusion == 'success'
         run: |
           set -e
       
