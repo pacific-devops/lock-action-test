@@ -26,7 +26,7 @@ jobs:
           # post_unlock: true
           max_wait_seconds: 600
           wait_interval_seconds: 10
-          remove_key_when_unlock: true
+          remove_key_when_unlock: false
           key_prefix: lock__
           ignore_already_locked_error: false
           fail_if_locked: false
