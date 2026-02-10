@@ -19,14 +19,14 @@ jobs:
         uses: suzuki-shunsuke/lock-action@8f08ca10332ee4ed22fd6f90508c179176da9d6d
         with:
           github_token: ${{ secrets.GH_PAT }}
-          repo_name: rops-dags-storage
+          repo_name: lock-action-test
           mode: lock
           key: ${{ inputs.deployment-id }}
           message: "Deployment locked by repo=${{ github.repository }},branch=${{ github.ref_name }},run_url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           post_unlock: true
           max_wait_seconds: 600
           wait_interval_seconds: 10
-          remove_key_when_unlock: false
+          remove_key_when_unlock: true
           key_prefix: lock__
           ignore_already_locked_error: false
           fail_if_locked: false
