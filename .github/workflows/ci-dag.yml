@@ -34,40 +34,40 @@ jobs:
         run: |
            echo "madter-133"
 
-      - name: Debug-1
-        run: |
-           echo "madter-133"
+      # - name: Debug-1
+      #   run: |
+      #      echo "madter-133"
           
-      - name: Debug-2
-        run: |
-           echo "madter-133"
+      # - name: Debug-2
+      #   run: |
+      #      echo "madter-133"
 
-      - name: Debug list lock branches
-        if: always()
-        run: |
-          set -e
+      # - name: Debug list lock branches
+      #   if: always()
+      #   run: |
+      #     set -e
       
-          OWNER="pacific-devops"
-          REPO="lock-action-test"
-          LOCK_REF="lock__${{ inputs.deployment-id }}"
+      #     OWNER="pacific-devops"
+      #     REPO="lock-action-test"
+      #     LOCK_REF="lock__${{ inputs.deployment-id }}"
       
-          echo "Attempting to unlock ref: ${LOCK_REF}"
+      #     echo "Attempting to unlock ref: ${LOCK_REF}"
       
-          for i in 1 2 3 4 5; do
-            echo "Unlock attempt #$i..."
+      #     for i in 1 2 3 4 5; do
+      #       echo "Unlock attempt #$i..."
       
-            if gh api -X DELETE "repos/${OWNER}/${REPO}/git/refs/heads/${LOCK_REF}"; then
-              echo "✅ Unlocked successfully: ${LOCK_REF}"
-              exit 0
-            fi
+      #       if gh api -X DELETE "repos/${OWNER}/${REPO}/git/refs/heads/${LOCK_REF}"; then
+      #         echo "✅ Unlocked successfully: ${LOCK_REF}"
+      #         exit 0
+      #       fi
       
-            echo "⚠️ Unlock failed (likely throttled). Waiting 15s before retry..."
-            sleep 15
-          done
+      #       echo "⚠️ Unlock failed (likely throttled). Waiting 15s before retry..."
+      #       sleep 15
+      #     done
       
-          echo "❌ Failed to unlock after multiple attempts. Manual cleanup may be required."
-          # Do not fail the job; we don't want post-cleanup to break the pipeline
-          exit 0
-        env:
-          GH_TOKEN:  ${{ secrets.GH_PAT }}
+      #     echo "❌ Failed to unlock after multiple attempts. Manual cleanup may be required."
+      #     # Do not fail the job; we don't want post-cleanup to break the pipeline
+      #     exit 0
+      #   env:
+      #     GH_TOKEN:  ${{ secrets.GH_PAT }}
            
