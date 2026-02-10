@@ -23,7 +23,7 @@ jobs:
           mode: lock
           key: ${{ inputs.deployment-id }}
           message: "Deployment locked by repo=${{ github.repository }},branch=${{ github.ref_name }},run_url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          post_unlock: true
+          # post_unlock: true
           max_wait_seconds: 600
           wait_interval_seconds: 10
           remove_key_when_unlock: true
@@ -40,4 +40,34 @@ jobs:
           
       - name: Debug-2
         run: |
-           echo "madter-133"            
+           echo "madter-133"
+
+      - name: Debug list lock branches
+        if: always()
+        run: |
+          set -e
+      
+          OWNER="pacific-devops"
+          REPO="lock-action-test"
+          LOCK_REF="lock__${{ inputs.deployment-id }}"
+      
+          echo "Attempting to unlock ref: ${LOCK_REF}"
+      
+          for i in 1 2 3 4 5; do
+            echo "Unlock attempt #$i..."
+      
+            if gh api -X DELETE "repos/${OWNER}/${REPO}/git/refs/heads/${LOCK_REF}"; then
+              echo "✅ Unlocked successfully: ${LOCK_REF}"
+              exit 0
+            fi
+      
+            echo "⚠️ Unlock failed (likely throttled). Waiting 15s before retry..."
+            sleep 15
+          done
+      
+          echo "❌ Failed to unlock after multiple attempts. Manual cleanup may be required."
+          # Do not fail the job; we don't want post-cleanup to break the pipeline
+          exit 0
+        env:
+          GH_TOKEN:  ${{ secrets.GH_PAT }}
+           
